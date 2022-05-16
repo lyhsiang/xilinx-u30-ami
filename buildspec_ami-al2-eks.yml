@@ -18,4 +18,4 @@ phases:
     commands:
       - echo "Build Phase"
       - export AWS_MAX_ATTEMPTS=200
-      - cd $CODEBUILD_SRC_DIR/nvidia-efa-ami_base && packer build xilinx-vt-al2-ecs.yml
+      - cd $CODEBUILD_SRC_DIR/nvidia-efa-ami_base && packer build xilinx-vt-al2-eks.yml
