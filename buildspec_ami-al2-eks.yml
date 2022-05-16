@@ -21,5 +21,5 @@ phases:
       - export PACKER_LOG=1 
       - export PACKER_LOG_PATH=packerlog.txt
       - cd $CODEBUILD_SRC_DIR/xilinx-u30-ami_base && packer build xilinx-vt-al2-eks.yml
-      - AMINAME=`cat $CODEBUILD_SRC_DIR/xilinx-u30-ami_base/packerlog.txt | grep -A1 'AMIs were created:' | last -1`
+      - AMINAME=`cat $CODEBUILD_SRC_DIR/xilinx-u30-ami_base/packerlog.txt | grep -A1 'AMIs were created:' | tail -1`
       - echo $AMINAME
