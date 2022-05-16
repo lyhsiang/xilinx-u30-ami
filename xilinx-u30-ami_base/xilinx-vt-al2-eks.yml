@@ -1,0 +1,82 @@
+{
+  "variables": {
+    "region": "us-east-1",
+    "flag": "eks-1.19",
+    "subnet_id": "subnet-5163b237",
+    "security_groupids": "sg-053996a563511a3c6,sg-050407dfb1c555723",
+    "build_ami": "ami-09d5097f0b2e9bc30",
+    "xilinx-video-sdk_version": "v1.5",
+    "xilinx-video-releasedir": "U30_Amazon_2.0_v1.5_20210827"
+  },
+  "builders": [{
+    "type": "amazon-ebs",
+    "region": "{{user `region`}}",
+    "source_ami": "{{user `build_ami`}}",
+    "run_tags": {
+        "Name": "packer-vt-processor-{{user `flag`}}"
+    },
+    "subnet_id": "{{user `subnet_id`}}",
+    "security_group_ids": "{{user `security_groupids`}}",
+    "instance_type": "vt1.3xlarge",
+    "ssh_username": "ec2-user",
+    "ami_name": "al2-xilinx-vt-fsx-processor_{{user `flag`}}-{{timestamp}}",
+    "launch_block_device_mappings":[{
+      "delete_on_termination": true,
+      "device_name": "/dev/xvda",
+      "volume_size": 200,
+      "throughput": 1000,
+      "iops": 8000,
+      "volume_type": "gp3"
+    }]
+ }],
+  "provisioners": [{
+    "type": "shell",
+    "expect_disconnect": true,
+    "inline": [
+      "sudo  yum update -y",
+      "sudo amazon-linux-extras install lustre2.10 epel -y",
+      "sudo yum install yum-utils cmake sipcalc dkms mdadm git htop hwloc iftop kernel-tools rpm-build rpmdevtools numactl parallel pigz python2-pip python3-pip wget kernel-devel-$(uname -r) kernel-headers-$(uname -r) -y",
+      "sudo yum groupinstall 'Development Tools' -y",
+      "uname -r",
+      "sudo shutdown -r now"]
+    },
+    {
+    "type": "shell",
+    "inline_shebang": "/bin/bash -xe",
+    "inline": [
+      "echo '    StrictHostKeyChecking no' | sudo tee -a /etc/ssh/ssh_config",
+      "echo '    HostbasedAuthentication no' | sudo tee -a /etc/ssh/ssh_config",
+      "echo '    CheckHostIP no' | sudo tee -a /etc/ssh/ssh_config"]
+    },
+    {
+    "type": "shell",
+    "inline_shebang": "/bin/bash -xe",
+    "inline": [
+      "uname -r",
+      "sudo yum install kernel-devel-$(uname -r) kernel-headers-$(uname -r) -y",
+      "git clone https://github.com/Xilinx/video-sdk.git -b {{user `xilinx-video-sdk_version`}}",
+      "cd video-sdk/release/{{user `xilinx-video-releasedir`}}",
+      "sh install.sh",
+      "sudo bash -c 'source /opt/xilinx/xcdr/setup.sh'"]
+    },
+    {
+    "type": "shell",
+    "inline_shebang": "/bin/bash -xe",
+    "inline": [
+      "echo 'vt1.3xlarge 15' | sudo tee -a /etc/eks/eni-max-pods.txt",
+      "echo 'vt1.6xlarge 30' | sudo tee -a /etc/eks/eni-max-pods.txt",
+      "echo 'vt1.24xlarge 50' | sudo tee -a /etc/eks/eni-max-pods.txt"]
+    },
+    {
+    "type": "shell",
+    "inline_shebang": "/bin/bash -xe",
+    "inline": [
+      "distribution=$(. /etc/os-release;echo $ID$VERSION_ID)",
+      "sudo amazon-linux-extras install docker",
+      "sudo systemctl enable docker",
+      "echo -e '{\"default-ulimits\":{\"memlock\":{\"Name\":\"memlock\",\"Soft\":-1,\"Hard\":-1}}}' | sudo tee /etc/docker/daemon.json",      
+      "sudo systemctl restart docker",
+      "sudo usermod -aG docker ec2-user"]
+    }
+  ]
+}
