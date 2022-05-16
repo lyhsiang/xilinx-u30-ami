@@ -32,6 +32,7 @@
   "provisioners": [{
     "type": "shell",
     "expect_disconnect": true,
+    "timeout": "20m",
     "inline": [
       "sudo  yum update -y",
       "sudo amazon-linux-extras install lustre2.10 epel -y",
