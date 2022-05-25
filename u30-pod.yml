@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: u30                                     # Choose a unique test pod name
+spec:
+  containers:
+  - name: u30                             # Choose a unique container name
+    image: public.ecr.aws/h3v8x5z1/x30:latest                      # Path to the Docker image on ECR
+    resources:
+      limits:
+        xilinx.com/fpga-xilinx_u30_gen3x4_base_1-0: 1  # Number of Alveo U30 cards which should be mounted
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do echo hello; sleep 10;done"]
+
