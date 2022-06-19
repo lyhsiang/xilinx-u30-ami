@@ -19,6 +19,12 @@ After filling in the `variables` check that the packer script is validated.
 packer validate xilinx-vt-al2.yml
 packer build xilinx-vt-al2.yml
 ````
+
+## EKSCTL command example 
+
+eksctl create nodegroup -f u30nodegroup.yaml
+
+
 ## Security
 
 See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
