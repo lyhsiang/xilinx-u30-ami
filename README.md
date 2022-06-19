@@ -22,8 +22,9 @@ packer build xilinx-vt-al2.yml
 
 ## EKSCTL command example 
 
+````
 eksctl create nodegroup -f u30nodegroup.yaml
-
+````
 
 ## Security
 
